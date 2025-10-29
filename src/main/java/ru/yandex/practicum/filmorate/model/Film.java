@@ -2,9 +2,6 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.cglib.core.Local;
-
-import java.time.Duration;
 import java.time.LocalDate;
 
 /**
