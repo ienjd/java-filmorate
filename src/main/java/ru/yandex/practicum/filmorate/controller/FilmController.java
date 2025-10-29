@@ -113,7 +113,6 @@ public class FilmController {
             oldFilm.setName(film.getName());
         }
 
-
         if (film.getDescription() != null) {
             if (!descriptionIsCorrect(film)) {
                 throw new ValidationException("Описание фильма не может составлять более 200 символов");
