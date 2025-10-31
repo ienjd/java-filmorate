@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.ValidationException;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
