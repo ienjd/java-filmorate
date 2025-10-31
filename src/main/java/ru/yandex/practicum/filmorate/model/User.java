@@ -1,20 +1,30 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.Builder;
-import lombok.Data;
+import jakarta.validation.ValidationException;
+import jakarta.validation.constraints.*;
+import lombok.*;
+
 import java.time.LocalDate;
 
 @Data
 @Builder
 public class User {
 
-    long id;
+    private Long id;
 
-    String email;
+    @NotNull
+    @NotBlank
+    @Email
+    private String email;
 
-    String login;
+    @NotEmpty
+    @NotBlank
+    private String login;
 
-    String name;
+    private String name;
 
-    LocalDate birthday;
+    @NotNull
+    @Past
+    private LocalDate birthday;
+
 }

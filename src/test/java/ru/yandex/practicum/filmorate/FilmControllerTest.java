@@ -3,10 +3,12 @@ package ru.yandex.practicum.filmorate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,49 +25,62 @@ public class FilmControllerTest {
 
     @Test
     public void controllerCreateFilmObject() {
-
-        controller.createFilm(Film.builder()
+        Film film = Film.builder()
                 .description("Guy Stuart Ritchie")
                 .name("Snatch")
                 .releaseDate(LocalDate.parse("2000-09-01"))
                 .duration(Long.valueOf(104))
-                .build());
+                .build();
+
+        BindingResult br = new BeanPropertyBindingResult(film, "user");
+
+        controller.createFilm(film, br);
 
         assertEquals("Snatch", controller.getFilms().getFirst().getName());
     }
 
     @Test
     public void controllerUpdateFilmObject() {
-        controller.createFilm(Film.builder()
+        Film film = Film.builder()
                 .description("Guy Stuart Ritchie")
                 .name("Snatch")
                 .releaseDate(LocalDate.parse("2000-09-01"))
                 .duration(Long.valueOf(104))
-                .build());
+                .build();
 
+        BindingResult br = new BeanPropertyBindingResult(film, "film");
+        controller.createFilm(film, br);
         assertEquals(104, controller.getFilms().getFirst().getDuration());
 
-        controller.updateFilm(Film.builder()
-                .id(1)
-                .duration(Long.valueOf(102))
-                .build());
+
+        Film film1 = film;
+        film1.setDuration(Long.valueOf(102));
+        BindingResult br1 = new BeanPropertyBindingResult(film1, "film1");
+        controller.updateFilm(film1, br1);
+
         assertEquals(102, controller.getFilms().getFirst().getDuration());
     }
 
     @Test
     public void withNameEqualsNullControllerThrowsValidationException() {
 
-        assertThrows(ValidationException.class, () -> controller.createFilm(Film.builder()
+        Film film = Film.builder()
                 .description("Guy Stuart Ritchie")
                 .name("")
                 .releaseDate(LocalDate.parse("2000-09-01"))
                 .duration(Long.valueOf(104))
-                .build()));
+                .build();
+
+
+        BindingResult br = new BeanPropertyBindingResult(film, "film");
+        br.addError(new FieldError("film", "name", "Ошибка валидации поля name"));
+
+        assertThrows(ValidationException.class, () -> controller.createFilm(film, br));
     }
 
     @Test
     public void withSizeOfDescriptionOver200SymbolsControllerThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> controller.createFilm(Film.builder()
+        Film film = Film.builder()
                 .description("В Антверпене банда грабителей, переодетых в религиозных евреев, " +
                         "один из которых — Фрэнки (Бенисио дель Торо), похищает из еврейской " +
                         "ювелирной конторы множество драгоценностей, среди которых бриллиант в 86 карат. " +
@@ -82,27 +97,44 @@ public class FilmControllerTest {
                 .name("Snatch")
                 .releaseDate(LocalDate.parse("2000-09-01"))
                 .duration(Long.valueOf(104))
-                .build()));
+                .build();
 
+        BindingResult br = new BeanPropertyBindingResult(film, "film");
+        br.addError(new FieldError("film", "description", "Ошибка валидации поля description"));
+
+        assertThrows(ValidationException.class, () -> controller.createFilm(film, br));
     }
 
     @Test
     public void withNegativeDurationControllerThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> controller.createFilm(Film.builder()
+
+        Film film = Film.builder()
                 .description("Guy Stuart Ritchie")
                 .name("Snatch")
                 .releaseDate(LocalDate.parse("2000-09-01"))
                 .duration(Long.valueOf(-1))
-                .build()));
+                .build();
+
+
+        BindingResult br = new BeanPropertyBindingResult(film, "film");
+        br.addError(new FieldError("film", "duration", "Ошибка валидации поля duration"));
+
+        assertThrows(ValidationException.class, () -> controller.createFilm(film, br));
     }
 
     @Test
     public void withDateOfReleaseBefore28December1895ControllerThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> controller.createFilm(Film.builder()
+        Film film = Film.builder()
                 .description("Louis Aimé Augustin Le Prince")
                 .name("Roundhay Garden Scene")
                 .releaseDate(LocalDate.parse("1888-10-14"))
                 .duration(Long.valueOf(1))
-                .build()));
+                .build();
+
+
+        BindingResult br = new BeanPropertyBindingResult(film, "film");
+        br.addError(new FieldError("film", "releaseDate", "Ошибка валидации поля name"));
+
+        assertThrows(ValidationException.class, () -> controller.createFilm(film, br));
     }
 }
