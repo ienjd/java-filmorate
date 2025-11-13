@@ -6,29 +6,27 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
+
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    Map<Long, User> users;
 
-    public UserController() {
-        this.users = new HashMap<>();
+    private InMemoryUserStorage inMemoryUserStorage;
+
+    public UserController(InMemoryUserStorage inMemoryUserStorage) {
+        this.inMemoryUserStorage = inMemoryUserStorage;
     }
 
-    private Long createUserId() {
-        long lostId = users.size();
-        return ++lostId;
-    }
 
     @GetMapping
     public List<User> getUsers() {
-        return users.values().stream().toList();
+        return inMemoryUserStorage.getUsers();
     }
 
     @PostMapping

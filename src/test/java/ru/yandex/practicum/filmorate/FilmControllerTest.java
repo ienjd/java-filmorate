@@ -9,7 +9,11 @@ import org.springframework.validation.FieldError;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,7 +24,7 @@ public class FilmControllerTest {
 
     @BeforeEach
     public void setUpUserController() {
-        controller = new FilmController();
+        controller = new FilmController(new InMemoryFilmStorage(new HashMap<>()));
     }
 
     @Test
