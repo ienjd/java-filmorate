@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -30,13 +29,19 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public User getUser(@PathVariable Long id){
+    public User getUser(@PathVariable Long id) {
         return inMemoryUserStorage.getUser(id);
     }
 
     @GetMapping("/{id}/friends")
-    public List<User> getUserFriendList(@PathVariable Long id){
+    public List<User> getUserFriendList(@PathVariable Long id) {
         return userService.getUserFriendList(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getCommonFriends(@PathVariable Long id,
+                                       @PathVariable Long otherId) {
+        return userService.getCommonFriends(id, otherId);
     }
 
     @PostMapping
@@ -53,14 +58,14 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("{id}/friends/{friendId}")
     public void addToFriendList(@PathVariable Long id,
-                                @PathVariable Long friendId){
+                                @PathVariable Long friendId) {
         userService.addToFriendList(id, friendId);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("{id}/friends/{friendId}")
     public void deleteFriendFromList(@PathVariable Long id,
-                                     @PathVariable Long friendId){
+                                     @PathVariable Long friendId) {
         userService.deleteFromFriendList(id, friendId);
     }
 

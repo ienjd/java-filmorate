@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.storage;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -10,7 +9,6 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 @Data
 @Slf4j

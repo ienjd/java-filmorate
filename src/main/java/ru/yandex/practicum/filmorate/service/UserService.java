@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -14,14 +15,14 @@ public class UserService {
     private final UserStorage userStorage;
 
     @Autowired
-    public UserService(InMemoryUserStorage userStorage){
+    public UserService(InMemoryUserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
-    private List<User> findFriend(Long id){
+    private List<User> findFriend(Long id) {
         return userStorage.getUsers().stream()
                 .filter(user -> user.getId().equals(id))
-                .toList();
+                .collect(Collectors.toList());
     }
 
     public void addToFriendList(Long userId, Long userAddedToFriend) {
@@ -34,11 +35,20 @@ public class UserService {
         findFriend(userAddedToFriend).getFirst().getFriends().remove(userId);
     }
 
-    public List<User> getUserFriendList(Long id){
-        return findFriend(id).getFirst().getFriends().stream()
+    public List<User> getUserFriendList(Long id) {
+        List<User> userFriendList = findFriend(id).getFirst().getFriends().stream()
                 .map(userId -> findFriend(userId).getFirst())
-                .toList();
+                .collect(Collectors.toList());
+
+        return userFriendList;
     }
 
+    public List<User> getCommonFriends(Long id, Long otherId) {
+        List<User> commonFriends = getUserFriendList(id).stream()
+                .filter(userId -> getUserFriendList(id).contains(userId) &&
+                        getUserFriendList(otherId).contains(userId))
+                .collect(Collectors.toList());
 
+        return commonFriends;
+    }
 }

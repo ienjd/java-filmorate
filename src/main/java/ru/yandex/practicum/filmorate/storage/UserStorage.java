@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public interface UserStorage{
+public interface UserStorage {
 
     @Autowired
     public Map<Long, User> users = new HashMap<>();
