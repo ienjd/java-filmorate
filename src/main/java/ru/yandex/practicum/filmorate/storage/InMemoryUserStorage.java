@@ -2,10 +2,13 @@ package ru.yandex.practicum.filmorate.storage;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.model.Film;
+import org.springframework.validation.BindingResult;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -13,12 +16,6 @@ import java.util.Map;
 @Slf4j
 @Component
 public class InMemoryUserStorage implements UserStorage {
-
-    Map <Long, User> users;
-
-    public InMemoryUserStorage(Map<Long, User> users) {
-        this.users = users;
-    }
 
     private Long createUserId() {
         long lostId = users.size();
@@ -29,6 +26,33 @@ public class InMemoryUserStorage implements UserStorage {
         return users.values().stream().toList();
     }
 
+    public User getUser(Long id) {
+        return users.values().stream().filter(user -> user.getId().equals(id)).toList().getFirst();
+    }
 
+    public User createUser(User user, BindingResult br) {
+
+        if (br.hasErrors()) {
+            throw new ValidationException("Ошибка валидации поля " + br.getFieldError().getField());
+        } else {
+            user.setId(createUserId());
+            user.setName(user.getName() == null || user.getName().isBlank() ? user.getLogin() : user.getName());
+            user.setFriends(new HashSet<>());
+            users.put(user.getId(), user);
+            log.info("Создан пользователь " + user.getName());
+            return user;
+        }
+    }
+
+    public User updateUser(User user, BindingResult br) {
+        User oldUser = users.get(user.getId());
+        if (br.hasErrors()) {
+            throw new ValidationException("Ошибка валидации поля " + br.getFieldError().getField());
+        } else {
+            users.put(oldUser.getId(), user);
+            log.info("Обновлен пользователь " + user.getName());
+            return user;
+        }
+    }
 
 }
