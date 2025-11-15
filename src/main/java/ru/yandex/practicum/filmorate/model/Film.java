@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 /**
  * Film.
@@ -15,7 +16,7 @@ import java.time.LocalDate;
 @Data
 public class Film {
 
-    private long id;
+    private Long id;
 
     @NotEmpty
     private String name;
@@ -28,5 +29,7 @@ public class Film {
 
     @Positive
     private Long duration;
+
+    private Set<Long> likes;
 
 }

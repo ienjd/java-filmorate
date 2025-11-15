@@ -23,11 +23,13 @@ public class UserController {
         this.userService = userService;
     }
 
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping
     public List<User> getUsers() {
         return inMemoryUserStorage.getUsers();
     }
 
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{id}")
     public User getUser(@PathVariable Long id) {
         return inMemoryUserStorage.getUser(id);

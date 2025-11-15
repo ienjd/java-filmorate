@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -15,12 +16,6 @@ import java.util.Map;
 @Slf4j
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
-
-    Map<Long, Film> films;
-
-    public InMemoryFilmStorage(Map<Long, Film> films) {
-        this.films = films;
-    }
 
     private Long createFilmId() {
         long lostId = films.size();
@@ -31,6 +26,11 @@ public class InMemoryFilmStorage implements FilmStorage {
         return films.values().stream().toList();
     }
 
+    public Film getFilm(Long id) {
+        return films.values().stream()
+                .filter(film -> film.getId().equals(id)).toList().getFirst();
+    }
+
     public Film createFilm(Film film, BindingResult br) {
 
         if (br.hasErrors()) {
@@ -39,6 +39,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             throw new ValidationException("Ошибка валидации поля releaseDate");
         } else {
             film.setId(createFilmId());
+            film.setLikes(new HashSet<>());
             films.put(film.getId(), film);
             log.info("Создан фильм " + film.getName());
             return film;

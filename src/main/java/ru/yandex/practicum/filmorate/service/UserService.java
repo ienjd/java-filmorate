@@ -19,7 +19,7 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
-    private List<User> findFriend(Long id) {
+    protected List<User> findFriend(Long id) {
         return userStorage.getUsers().stream()
                 .filter(user -> user.getId().equals(id))
                 .collect(Collectors.toList());
