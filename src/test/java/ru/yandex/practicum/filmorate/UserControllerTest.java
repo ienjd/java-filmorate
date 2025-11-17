@@ -11,22 +11,25 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 public class UserControllerTest {
 
-   /* private UserController controller;
+    private UserController controller;
+
+    private InMemoryUserStorage inMemoryUserStorage;
+
+    private UserService userService;
 
     @BeforeEach
     public void setUpUserController() {
-        controller = new UserController();
+        inMemoryUserStorage = new InMemoryUserStorage();
+        userService = new UserService(inMemoryUserStorage);
+        controller = new UserController(inMemoryUserStorage, userService);
     }
 
     @Test
@@ -64,7 +67,7 @@ public class UserControllerTest {
         BindingResult br1 = new BeanPropertyBindingResult(user1, "user1");
         controller.updateUser(user1, br1);
 
-        assertEquals("NotVlad", controller.getUsers().getFirst().getName());
+        assertEquals("NotVlad", controller.getUsers().getLast().getName());
     }
 
     @Test
@@ -79,7 +82,7 @@ public class UserControllerTest {
         BindingResult br = new BeanPropertyBindingResult(user, "user");
         controller.createUser(user, br);
 
-        assertEquals("Vlad_Shutov", controller.getUsers().getFirst().getName());
+        assertEquals("Vlad_Shutov", controller.getUsers().getLast().getName());
     }
 
     @Test
@@ -147,5 +150,5 @@ public class UserControllerTest {
         br.addError(new FieldError("user", "birthday", "Ошибка валидации поля birthday"));
 
         assertThrows(ValidationException.class, () -> controller.createUser(user, br));
-    }*/
+    }
 }

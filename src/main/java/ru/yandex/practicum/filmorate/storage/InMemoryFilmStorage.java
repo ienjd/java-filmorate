@@ -4,13 +4,15 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
+import ru.yandex.practicum.filmorate.exceptions.FailReleaseDateException;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 @Data
 @Slf4j
@@ -26,17 +28,18 @@ public class InMemoryFilmStorage implements FilmStorage {
         return films.values().stream().toList();
     }
 
-    public Film getFilm(Long id) {
-        return films.values().stream()
-                .filter(film -> film.getId().equals(id)).toList().getFirst();
+    public Optional<Film> getFilm(Long id) {
+        return Optional.of(films.values().stream()
+                .filter(film -> film.getId().equals(id))
+                .findFirst().orElseThrow(() -> new NotFoundException("Фильм с данным id не найден")));
+
     }
 
     public Film createFilm(Film film, BindingResult br) {
-
-        if (br.hasErrors()) {
-            throw new ValidationException("Ошибка валидации поля " + br.getFieldError().getField());
-        } else if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            throw new ValidationException("Ошибка валидации поля releaseDate");
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+            throw new FailReleaseDateException("Некорректная дата");
+        } else if (br.hasErrors()) {
+            throw new ValidationException("Поле " + br.getFieldError().getField() + "передано некорректно");
         } else {
             film.setId(createFilmId());
             film.setLikes(new HashSet<>());
@@ -47,13 +50,14 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     public Film updateFilm(Film film, BindingResult br) {
-        Film oldFilm = films.get(film.getId());
+        Optional<Film> oldFilm = getFilm(film.getId());
         if (br.hasErrors()) {
-            throw new ValidationException("Ошибка валидации поля " + br.getFieldError().getField());
+            throw new ValidationException("Поле " + br.getFieldError().getField() + "передано некорректно");
         } else if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            throw new ValidationException("Ошибка валидации поля releaseDate");
+            throw new ValidationException("Поле " + br.getFieldError().getField() + "передано некорректно");
         } else {
-            films.put(oldFilm.getId(), film);
+            film.setLikes(oldFilm.get().getLikes());
+            films.put(oldFilm.get().getId(), film);
             log.info("Обновлён фильм " + film.getName());
             return film;
         }

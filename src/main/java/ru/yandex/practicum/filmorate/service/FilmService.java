@@ -2,50 +2,64 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
 
     private final FilmStorage filmStorage;
 
+    private final UserService userService;
+
     @Autowired
-    public FilmService(InMemoryFilmStorage filmStorage) {
+    public FilmService(InMemoryFilmStorage filmStorage, UserService userService) {
         this.filmStorage = filmStorage;
+        this.userService = userService;
     }
 
-    private List<Film> findFilm(Long id) {
-        return filmStorage.getFilms().stream()
+    private Optional<Film> findFilm(Long id) {
+        return Optional.ofNullable(filmStorage.getFilms().stream()
                 .filter(film -> film.getId().equals(id))
-                .collect(Collectors.toList());
+                .findAny().orElseThrow(() -> new NotFoundException("Пользователь не найден")));
     }
 
-    public Set<Long> addLikeToFilm(Long filmId, Long userId){
-        findFilm(filmId).getFirst().getLikes().add(userId);
-        return findFilm(filmId).getFirst().getLikes();
+    public Set<Long> addLikeToFilm(Long filmId, Long userId) {
+        userService.findFriend(userId);
+        findFilm(filmId).get().getLikes().add(userId);
+        return findFilm(filmId).get().getLikes();
     }
 
-    public void deleteLikeFromFilm(Long filmId, Long userId){
-        findFilm(filmId).getFirst().getLikes().remove(userId);
+    public Set<Long> deleteLikeFromFilm(Long filmId, Long userId) {
+        userService.findFriend(userId);
+        findFilm(filmId).get().getLikes().remove(userId);
+        return findFilm(filmId).get().getLikes();
     }
 
-    public List<Film> returnMostPopularFilms(Integer count){
-        System.out.println("Запрос получен");
-        List <Film> sortedFilms =
-                filmStorage.getFilms().stream()
-                        .sorted(Comparator.comparingInt(film -> film.getLikes().size()))
-                        .collect(Collectors.toList());
-        return sortedFilms.subList(0, count).reversed();
-    }
+    public List<Film> returnMostPopularFilms(int count) {
 
+        Comparator<Film> comparator = new Comparator<>() {
+            @Override
+            public int compare(Film o1, Film o2) {
+                return o1.getLikes().size() - o2.getLikes().size();
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return false;
+            }
+        };
+
+        return filmStorage.getFilms().stream()
+                .sorted((film1, film2) -> comparator.compare(film2, film1))
+                .limit(count)
+                .toList();
+    }
 }

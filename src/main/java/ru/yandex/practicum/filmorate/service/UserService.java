@@ -2,11 +2,13 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,25 +21,25 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
-    protected List<User> findFriend(Long id) {
-        return userStorage.getUsers().stream()
+    protected Optional<User> findFriend(Long id) {
+        return Optional.ofNullable(userStorage.getUsers().stream()
                 .filter(user -> user.getId().equals(id))
-                .collect(Collectors.toList());
+                .findAny().orElseThrow(() -> new NotFoundException("Пользователь не найден")));
     }
 
     public void addToFriendList(Long userId, Long userAddedToFriend) {
-        findFriend(userId).getFirst().getFriends().add(userAddedToFriend);
-        findFriend(userAddedToFriend).getFirst().getFriends().add(userId);
+        findFriend(userId).get().getFriends().add(userAddedToFriend);
+        findFriend(userAddedToFriend).get().getFriends().add(userId);
     }
 
     public void deleteFromFriendList(Long userId, Long userAddedToFriend) {
-        findFriend(userId).getFirst().getFriends().remove(userAddedToFriend);
-        findFriend(userAddedToFriend).getFirst().getFriends().remove(userId);
+        findFriend(userId).get().getFriends().remove(userAddedToFriend);
+        findFriend(userAddedToFriend).get().getFriends().remove(userId);
     }
 
     public List<User> getUserFriendList(Long id) {
-        List<User> userFriendList = findFriend(id).getFirst().getFriends().stream()
-                .map(userId -> findFriend(userId).getFirst())
+        List<User> userFriendList = findFriend(id).get().getFriends().stream()
+                .map(userId -> findFriend(userId).get())
                 .collect(Collectors.toList());
 
         return userFriendList;

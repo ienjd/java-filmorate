@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.exceptions;
 
-public class FailReleaseDate extends RuntimeException {
-    public FailReleaseDate(String message) {
+public class FailReleaseDateException extends RuntimeException {
+    public FailReleaseDateException(String message) {
         super(message);
     }
 

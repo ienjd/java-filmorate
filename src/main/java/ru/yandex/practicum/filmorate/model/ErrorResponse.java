@@ -1,4 +1,10 @@
 package ru.yandex.practicum.filmorate.model;
 
-public class ErroeREsponce {
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
+public class ErrorResponse {
+    private String error;
 }

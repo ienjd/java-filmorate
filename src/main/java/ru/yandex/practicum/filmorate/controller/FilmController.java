@@ -6,12 +6,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @RestController
@@ -36,7 +35,7 @@ public class FilmController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{id}")
-    public Film getFilm(@PathVariable Long id) {
+    public Optional<Film> getFilm(@PathVariable Long id) {
         return inMemoryFilmStorage.getFilm(id);
     }
 
@@ -57,18 +56,17 @@ public class FilmController {
         return filmService.addLikeToFilm(id, userId);
     }
 
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{id}/like/{userId}")
-    public void deleteLikeFromFilm(@PathVariable Long id, @PathVariable Long userId) {
-        filmService.deleteLikeFromFilm(id, userId);
+    public Set<Long> deleteLikeFromFilm(@PathVariable Long id, @PathVariable Long userId) {
+        return filmService.deleteLikeFromFilm(id, userId);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/popular")
-    public List<Film> returnMostPopularFilms(@RequestParam(defaultValue = "10") Integer count) {
+    public List<Film> returnMostPopularFilms(@RequestParam(defaultValue = "10") int count) {
         return filmService.returnMostPopularFilms(count);
     }
-
 
 
 }
