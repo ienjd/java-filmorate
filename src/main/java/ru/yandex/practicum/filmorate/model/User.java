@@ -10,7 +10,7 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 public class User {
-
+    @Positive
     private Long id;
 
     @NotNull

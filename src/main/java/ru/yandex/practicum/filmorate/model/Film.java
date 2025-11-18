@@ -9,13 +9,10 @@ import lombok.Data;
 import java.time.LocalDate;
 import java.util.Set;
 
-/**
- * Film.
- */
 @Builder
 @Data
 public class Film {
-
+    @Positive
     private Long id;
 
     @NotEmpty

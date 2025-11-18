@@ -1,5 +1,8 @@
 package ru.yandex.practicum.filmorate;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -8,7 +11,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exceptions.FailReleaseDateException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -16,12 +18,12 @@ import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 public class FilmControllerTest {
-
     private FilmController controller;
 
     private InMemoryFilmStorage inMemoryFilmStorage;
@@ -50,9 +52,7 @@ public class FilmControllerTest {
                 .duration(Long.valueOf(104))
                 .build();
 
-        BindingResult br = new BeanPropertyBindingResult(film, "user");
-
-        controller.createFilm(film, br);
+        controller.createFilm(film);
 
         assertEquals("Snatch", controller.getFilms().getFirst().getName());
     }
@@ -66,15 +66,14 @@ public class FilmControllerTest {
                 .duration(Long.valueOf(104))
                 .build();
 
-        BindingResult br = new BeanPropertyBindingResult(film, "film");
-        controller.createFilm(film, br);
+        controller.createFilm(film);
         assertEquals(104, controller.getFilms().getFirst().getDuration());
 
 
         Film film1 = film;
         film1.setDuration(Long.valueOf(102));
         BindingResult br1 = new BeanPropertyBindingResult(film1, "film1");
-        controller.updateFilm(film1, br1);
+        controller.updateFilm(film1);
 
         assertEquals(102, controller.getFilms().getLast().getDuration());
     }
@@ -90,10 +89,11 @@ public class FilmControllerTest {
                 .build();
 
 
-        BindingResult br = new BeanPropertyBindingResult(film, "film");
-        br.addError(new FieldError("film", "name", "Ошибка валидации поля name"));
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
-        assertThrows(ValidationException.class, () -> controller.createFilm(film, br));
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+
+        assertFalse(violations.isEmpty());
     }
 
     @Test
@@ -117,10 +117,11 @@ public class FilmControllerTest {
                 .duration(Long.valueOf(104))
                 .build();
 
-        BindingResult br = new BeanPropertyBindingResult(film, "film");
-        br.addError(new FieldError("film", "description", "Ошибка валидации поля description"));
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
-        assertThrows(ValidationException.class, () -> controller.createFilm(film, br));
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+
+        assertFalse(violations.isEmpty());
     }
 
     @Test
@@ -134,10 +135,11 @@ public class FilmControllerTest {
                 .build();
 
 
-        BindingResult br = new BeanPropertyBindingResult(film, "film");
-        br.addError(new FieldError("film", "duration", "Ошибка валидации поля duration"));
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
-        assertThrows(ValidationException.class, () -> controller.createFilm(film, br));
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+
+        assertFalse(violations.isEmpty());
     }
 
     @Test
@@ -153,6 +155,6 @@ public class FilmControllerTest {
         BindingResult br = new BeanPropertyBindingResult(film, "film");
         br.addError(new FieldError("film", "releaseDate", "Ошибка валидации поля name"));
 
-        assertThrows(FailReleaseDateException.class, () -> controller.createFilm(film, br));
+        assertThrows(FailReleaseDateException.class, () -> controller.createFilm(film));
     }
 }

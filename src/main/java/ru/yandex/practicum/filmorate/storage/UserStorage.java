@@ -17,7 +17,7 @@ public interface UserStorage {
 
     public List<User> getUsers();
 
-    public User createUser(User user, BindingResult br);
+    public User createUser(User user);
 
-    public User updateUser(User user, BindingResult br);
+    public User updateUser(User user);
 }
