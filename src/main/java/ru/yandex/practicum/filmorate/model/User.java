@@ -4,11 +4,13 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 @Builder
+@AllArgsConstructor
 public class User {
-
+    @Positive
     private Long id;
 
     @NotNull
@@ -26,4 +28,5 @@ public class User {
     @Past
     private LocalDate birthday;
 
+    private Set<Long> friends;
 }

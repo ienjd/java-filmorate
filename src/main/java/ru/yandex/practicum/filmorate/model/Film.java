@@ -5,16 +5,15 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
-import java.time.LocalDate;
 
-/**
- * Film.
- */
+import java.time.LocalDate;
+import java.util.Set;
+
 @Builder
 @Data
 public class Film {
-
-    private long id;
+    @Positive
+    private Long id;
 
     @NotEmpty
     private String name;
@@ -27,5 +26,7 @@ public class Film {
 
     @Positive
     private Long duration;
+
+    private Set<Long> likes;
 
 }
